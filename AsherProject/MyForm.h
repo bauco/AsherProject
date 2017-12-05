@@ -7,6 +7,12 @@
 #include "opencv2/core/utility.hpp"
 #include "opencv2/features2d/features2d.hpp"
 
+bool compareContourAreas(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2) {
+	double i = fabs(contourArea(cv::Mat(contour1)));
+	double j = fabs(contourArea(cv::Mat(contour2)));
+	return (i < j);
+}
+
 namespace AsherProject {
 
 	using namespace System;
@@ -19,7 +25,7 @@ namespace AsherProject {
 	using namespace std;
 	using namespace cv;
 
-	Mat src, src_ROI, src_gray, src_threshold, src_blur, src_detected_edges, src_erosion, src_dilation, src_contours, src_elipse;
+	Mat src, src_ROI, src_gray, src_threshold, src_tranform, src_detected_edges, src_erosion, src_dilation, src_contours, src_elipse;
 	/// <summary>
 	/// Summary for MyForm
 	/// </summary>
@@ -37,10 +43,10 @@ namespace AsherProject {
 	private: System::Windows::Forms::TrackBar^  ThresholdTrackBar;
 
 	private: System::Windows::Forms::ComboBox^  ThresholdComboBox;
-	private: System::Windows::Forms::Button^  BlurButton;
-	private: System::Windows::Forms::ComboBox^  BlurComboBox;
-	private: System::Windows::Forms::TrackBar^  EdgeTrresholdTrackBar;
-	private: System::Windows::Forms::ComboBox^  EdgeComboBox;
+
+
+
+
 	private: System::Windows::Forms::Button^  ROIButton;
 	private: System::Windows::Forms::Button^  Applybutton;
 	private: System::Windows::Forms::ComboBox^  ErosionComboBox;
@@ -55,6 +61,12 @@ namespace AsherProject {
 	private: System::Windows::Forms::TrackBar^  BolbMaxtrackBar;
 	private: System::Windows::Forms::TrackBar^  BolbMinTrackBar;
 	private: System::Windows::Forms::TrackBar^  BolbMaxAreatrackBar;
+	private: System::Windows::Forms::ComboBox^  TransformationscomboBox;
+	private: System::Windows::Forms::TrackBar^  TransformationstrackBar;
+	private: System::Windows::Forms::Button^  UndoButton;
+
+
+
 
 
 
@@ -102,35 +114,34 @@ namespace AsherProject {
 			this->backgroundWorker1 = (gcnew System::ComponentModel::BackgroundWorker());
 			this->panel1 = (gcnew System::Windows::Forms::Panel());
 			this->panel4 = (gcnew System::Windows::Forms::Panel());
+			this->UndoButton = (gcnew System::Windows::Forms::Button());
 			this->Applybutton = (gcnew System::Windows::Forms::Button());
 			this->panel5 = (gcnew System::Windows::Forms::Panel());
 			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->TransformationstrackBar = (gcnew System::Windows::Forms::TrackBar());
+			this->TransformationscomboBox = (gcnew System::Windows::Forms::ComboBox());
+			this->ErosionComboBox = (gcnew System::Windows::Forms::ComboBox());
+			this->BolbMaxAreatrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->BolbMaxtrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->BolbMinTrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->ExportButton = (gcnew System::Windows::Forms::Button());
 			this->DilationTrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->ErosionTrackBar = (gcnew System::Windows::Forms::TrackBar());
-			this->ErosionComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->ROIButton = (gcnew System::Windows::Forms::Button());
-			this->EdgeComboBox = (gcnew System::Windows::Forms::ComboBox());
-			this->EdgeTrresholdTrackBar = (gcnew System::Windows::Forms::TrackBar());
-			this->BlurComboBox = (gcnew System::Windows::Forms::ComboBox());
-			this->BlurButton = (gcnew System::Windows::Forms::Button());
 			this->ThresholdComboBox = (gcnew System::Windows::Forms::ComboBox());
 			this->ThresholdTrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->panel3 = (gcnew System::Windows::Forms::Panel());
-			this->BolbMaxAreatrackBar = (gcnew System::Windows::Forms::TrackBar());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox))->BeginInit();
 			this->panel1->SuspendLayout();
 			this->panel4->SuspendLayout();
 			this->panel2->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->TransformationstrackBar))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMaxAreatrackBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMaxtrackBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMinTrackBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->DilationTrackBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ErosionTrackBar))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->EdgeTrresholdTrackBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ThresholdTrackBar))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMaxAreatrackBar))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// LoadImageButton
@@ -170,12 +181,24 @@ namespace AsherProject {
 			// 
 			// panel4
 			// 
+			this->panel4->Controls->Add(this->UndoButton);
 			this->panel4->Controls->Add(this->Applybutton);
 			this->panel4->Dock = System::Windows::Forms::DockStyle::Bottom;
 			this->panel4->Location = System::Drawing::Point(0, 487);
 			this->panel4->Name = L"panel4";
 			this->panel4->Size = System::Drawing::Size(562, 50);
 			this->panel4->TabIndex = 2;
+			// 
+			// UndoButton
+			// 
+			this->UndoButton->Enabled = false;
+			this->UndoButton->Location = System::Drawing::Point(358, 15);
+			this->UndoButton->Name = L"UndoButton";
+			this->UndoButton->Size = System::Drawing::Size(75, 23);
+			this->UndoButton->TabIndex = 1;
+			this->UndoButton->Text = L"Undo";
+			this->UndoButton->UseVisualStyleBackColor = true;
+			this->UndoButton->Click += gcnew System::EventHandler(this, &MyForm::UndoButton_Click);
 			// 
 			// Applybutton
 			// 
@@ -199,17 +222,15 @@ namespace AsherProject {
 			// panel2
 			// 
 			this->panel2->Controls->Add(this->BolbMaxAreatrackBar);
-			this->panel2->Controls->Add(this->BolbMaxtrackBar);
-			this->panel2->Controls->Add(this->BolbMinTrackBar);
 			this->panel2->Controls->Add(this->ExportButton);
+			this->panel2->Controls->Add(this->BolbMinTrackBar);
+			this->panel2->Controls->Add(this->BolbMaxtrackBar);
+			this->panel2->Controls->Add(this->TransformationstrackBar);
+			this->panel2->Controls->Add(this->TransformationscomboBox);
+			this->panel2->Controls->Add(this->ErosionComboBox);
 			this->panel2->Controls->Add(this->DilationTrackBar);
 			this->panel2->Controls->Add(this->ErosionTrackBar);
-			this->panel2->Controls->Add(this->ErosionComboBox);
 			this->panel2->Controls->Add(this->ROIButton);
-			this->panel2->Controls->Add(this->EdgeComboBox);
-			this->panel2->Controls->Add(this->EdgeTrresholdTrackBar);
-			this->panel2->Controls->Add(this->BlurComboBox);
-			this->panel2->Controls->Add(this->BlurButton);
 			this->panel2->Controls->Add(this->ThresholdComboBox);
 			this->panel2->Controls->Add(this->ThresholdTrackBar);
 			this->panel2->Controls->Add(this->LoadImageButton);
@@ -219,28 +240,75 @@ namespace AsherProject {
 			this->panel2->Size = System::Drawing::Size(141, 537);
 			this->panel2->TabIndex = 3;
 			// 
+			// TransformationstrackBar
+			// 
+			this->TransformationstrackBar->Enabled = false;
+			this->TransformationstrackBar->Location = System::Drawing::Point(12, 254);
+			this->TransformationstrackBar->Maximum = 21;
+			this->TransformationstrackBar->Name = L"TransformationstrackBar";
+			this->TransformationstrackBar->Size = System::Drawing::Size(118, 45);
+			this->TransformationstrackBar->TabIndex = 4;
+			this->TransformationstrackBar->Scroll += gcnew System::EventHandler(this, &MyForm::TransformationstrackBar_Scroll);
+			// 
+			// TransformationscomboBox
+			// 
+			this->TransformationscomboBox->Enabled = false;
+			this->TransformationscomboBox->FormattingEnabled = true;
+			this->TransformationscomboBox->Items->AddRange(gcnew cli::array< System::Object^  >(5) {
+				L"Opening", L"Closing", L"Gradient",
+					L"Top Hat", L"Black Hat"
+			});
+			this->TransformationscomboBox->Location = System::Drawing::Point(12, 227);
+			this->TransformationscomboBox->Name = L"TransformationscomboBox";
+			this->TransformationscomboBox->Size = System::Drawing::Size(118, 21);
+			this->TransformationscomboBox->TabIndex = 4;
+			this->TransformationscomboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::TransformationscomboBox_SelectedIndexChanged);
+			// 
+			// ErosionComboBox
+			// 
+			this->ErosionComboBox->Enabled = false;
+			this->ErosionComboBox->FormattingEnabled = true;
+			this->ErosionComboBox->Items->AddRange(gcnew cli::array< System::Object^  >(3) { L"MORPH_RECT", L"MORPH_CROSS", L"MORPH_ELLIPSE" });
+			this->ErosionComboBox->Location = System::Drawing::Point(12, 131);
+			this->ErosionComboBox->Name = L"ErosionComboBox";
+			this->ErosionComboBox->Size = System::Drawing::Size(118, 21);
+			this->ErosionComboBox->TabIndex = 11;
+			this->ErosionComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::ErosionComboBox_SelectedIndexChanged);
+			// 
+			// BolbMaxAreatrackBar
+			// 
+			this->BolbMaxAreatrackBar->Enabled = false;
+			this->BolbMaxAreatrackBar->Location = System::Drawing::Point(12, 343);
+			this->BolbMaxAreatrackBar->Maximum = 1000;
+			this->BolbMaxAreatrackBar->Name = L"BolbMaxAreatrackBar";
+			this->BolbMaxAreatrackBar->Size = System::Drawing::Size(118, 45);
+			this->BolbMaxAreatrackBar->TabIndex = 17;
+			// 
 			// BolbMaxtrackBar
 			// 
-			this->BolbMaxtrackBar->Location = System::Drawing::Point(12, 416);
+			this->BolbMaxtrackBar->Enabled = false;
+			this->BolbMaxtrackBar->Location = System::Drawing::Point(12, 280);
 			this->BolbMaxtrackBar->Maximum = 220;
 			this->BolbMaxtrackBar->Name = L"BolbMaxtrackBar";
 			this->BolbMaxtrackBar->Size = System::Drawing::Size(118, 45);
 			this->BolbMaxtrackBar->TabIndex = 16;
 			this->BolbMaxtrackBar->Value = 220;
+			this->BolbMaxtrackBar->Scroll += gcnew System::EventHandler(this, &MyForm::BolbMaxtrackBar_Scroll);
 			// 
 			// BolbMinTrackBar
 			// 
-			this->BolbMinTrackBar->Location = System::Drawing::Point(12, 376);
+			this->BolbMinTrackBar->Enabled = false;
+			this->BolbMinTrackBar->Location = System::Drawing::Point(12, 309);
 			this->BolbMinTrackBar->Maximum = 220;
-			this->BolbMinTrackBar->Minimum = 1;
 			this->BolbMinTrackBar->Name = L"BolbMinTrackBar";
-			this->BolbMinTrackBar->Size = System::Drawing::Size(123, 45);
-			this->BolbMinTrackBar->TabIndex = 15;
-			this->BolbMinTrackBar->Value = 50;
+			this->BolbMinTrackBar->Size = System::Drawing::Size(118, 45);
+			this->BolbMinTrackBar->TabIndex = 20;
+			this->BolbMinTrackBar->Scroll += gcnew System::EventHandler(this, &MyForm::BolbMinTrackBar_Scroll);
 			// 
 			// ExportButton
 			// 
-			this->ExportButton->Location = System::Drawing::Point(12, 347);
+			this->ExportButton->Enabled = false;
+			this->ExportButton->Location = System::Drawing::Point(12, 487);
 			this->ExportButton->Name = L"ExportButton";
 			this->ExportButton->Size = System::Drawing::Size(118, 23);
 			this->ExportButton->TabIndex = 14;
@@ -251,32 +319,22 @@ namespace AsherProject {
 			// DilationTrackBar
 			// 
 			this->DilationTrackBar->Enabled = false;
-			this->DilationTrackBar->Location = System::Drawing::Point(12, 308);
+			this->DilationTrackBar->Location = System::Drawing::Point(12, 192);
 			this->DilationTrackBar->Maximum = 21;
 			this->DilationTrackBar->Name = L"DilationTrackBar";
-			this->DilationTrackBar->Size = System::Drawing::Size(123, 45);
+			this->DilationTrackBar->Size = System::Drawing::Size(118, 45);
 			this->DilationTrackBar->TabIndex = 13;
 			this->DilationTrackBar->Scroll += gcnew System::EventHandler(this, &MyForm::DilationTrackBar_Scroll);
 			// 
 			// ErosionTrackBar
 			// 
 			this->ErosionTrackBar->Enabled = false;
-			this->ErosionTrackBar->Location = System::Drawing::Point(12, 274);
+			this->ErosionTrackBar->Location = System::Drawing::Point(12, 158);
 			this->ErosionTrackBar->Maximum = 21;
 			this->ErosionTrackBar->Name = L"ErosionTrackBar";
-			this->ErosionTrackBar->Size = System::Drawing::Size(123, 45);
+			this->ErosionTrackBar->Size = System::Drawing::Size(118, 45);
 			this->ErosionTrackBar->TabIndex = 12;
 			this->ErosionTrackBar->Scroll += gcnew System::EventHandler(this, &MyForm::ErosionTrackBar_Scroll);
-			// 
-			// ErosionComboBox
-			// 
-			this->ErosionComboBox->FormattingEnabled = true;
-			this->ErosionComboBox->Items->AddRange(gcnew cli::array< System::Object^  >(3) { L"MORPH_RECT", L"MORPH_CROSS", L"MORPH_ELLIPSE" });
-			this->ErosionComboBox->Location = System::Drawing::Point(12, 247);
-			this->ErosionComboBox->Name = L"ErosionComboBox";
-			this->ErosionComboBox->Size = System::Drawing::Size(123, 21);
-			this->ErosionComboBox->TabIndex = 11;
-			this->ErosionComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::ErosionComboBox_SelectedIndexChanged);
 			// 
 			// ROIButton
 			// 
@@ -288,50 +346,6 @@ namespace AsherProject {
 			this->ROIButton->Text = L"region of interest";
 			this->ROIButton->UseVisualStyleBackColor = true;
 			this->ROIButton->Click += gcnew System::EventHandler(this, &MyForm::ROIButton_Click);
-			// 
-			// EdgeComboBox
-			// 
-			this->EdgeComboBox->FormattingEnabled = true;
-			this->EdgeComboBox->Items->AddRange(gcnew cli::array< System::Object^  >(2) { L"Canny Edge Detector", L"Sobel Derivatives" });
-			this->EdgeComboBox->Location = System::Drawing::Point(12, 182);
-			this->EdgeComboBox->Name = L"EdgeComboBox";
-			this->EdgeComboBox->Size = System::Drawing::Size(123, 21);
-			this->EdgeComboBox->TabIndex = 9;
-			this->EdgeComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::EdgeComboBox_SelectedIndexChanged);
-			// 
-			// EdgeTrresholdTrackBar
-			// 
-			this->EdgeTrresholdTrackBar->Enabled = false;
-			this->EdgeTrresholdTrackBar->Location = System::Drawing::Point(12, 213);
-			this->EdgeTrresholdTrackBar->Maximum = 100;
-			this->EdgeTrresholdTrackBar->Name = L"EdgeTrresholdTrackBar";
-			this->EdgeTrresholdTrackBar->Size = System::Drawing::Size(118, 45);
-			this->EdgeTrresholdTrackBar->TabIndex = 8;
-			this->EdgeTrresholdTrackBar->Scroll += gcnew System::EventHandler(this, &MyForm::EdgeTrresholdTrackBar_Scroll);
-			// 
-			// BlurComboBox
-			// 
-			this->BlurComboBox->FormattingEnabled = true;
-			this->BlurComboBox->Items->AddRange(gcnew cli::array< System::Object^  >(5) {
-				L"Original", L"Blur", L"Gaussian Blur", L"Median Blur",
-					L"Bilateral Filter"
-			});
-			this->BlurComboBox->Location = System::Drawing::Point(12, 130);
-			this->BlurComboBox->Name = L"BlurComboBox";
-			this->BlurComboBox->Size = System::Drawing::Size(118, 21);
-			this->BlurComboBox->TabIndex = 7;
-			this->BlurComboBox->SelectedIndexChanged += gcnew System::EventHandler(this, &MyForm::BlurComboBox_SelectedIndexChanged);
-			// 
-			// BlurButton
-			// 
-			this->BlurButton->Enabled = false;
-			this->BlurButton->Location = System::Drawing::Point(12, 157);
-			this->BlurButton->Name = L"BlurButton";
-			this->BlurButton->Size = System::Drawing::Size(118, 23);
-			this->BlurButton->TabIndex = 6;
-			this->BlurButton->Text = L"Blur";
-			this->BlurButton->UseVisualStyleBackColor = true;
-			this->BlurButton->Click += gcnew System::EventHandler(this, &MyForm::BlurButton_Click);
 			// 
 			// ThresholdComboBox
 			// 
@@ -365,14 +379,6 @@ namespace AsherProject {
 			this->panel3->Size = System::Drawing::Size(784, 24);
 			this->panel3->TabIndex = 4;
 			// 
-			// BolbMaxAreatrackBar
-			// 
-			this->BolbMaxAreatrackBar->Location = System::Drawing::Point(22, 455);
-			this->BolbMaxAreatrackBar->Maximum = 1000;
-			this->BolbMaxAreatrackBar->Name = L"BolbMaxAreatrackBar";
-			this->BolbMaxAreatrackBar->Size = System::Drawing::Size(104, 45);
-			this->BolbMaxAreatrackBar->TabIndex = 17;
-			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -388,18 +394,18 @@ namespace AsherProject {
 			this->panel4->ResumeLayout(false);
 			this->panel2->ResumeLayout(false);
 			this->panel2->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->TransformationstrackBar))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMaxAreatrackBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMaxtrackBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMinTrackBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->DilationTrackBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ErosionTrackBar))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->EdgeTrresholdTrackBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->ThresholdTrackBar))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->BolbMaxAreatrackBar))->EndInit();
 			this->ResumeLayout(false);
 
 		}
 #pragma endregion
-
+//Opens DialogBox for user to load image file bmp/jpg/all
 private: Void LoadImageButton_Click(Object^  sender, EventArgs^  e) {
 		OpenFileDialog^ dirOpen = gcnew OpenFileDialog();
 		dirOpen->Filter = "Image(*.bmp; *.jpg)|[*.bmp; *.jpg|All files (*.*)|*.*||";
@@ -416,11 +422,13 @@ private: Void LoadImageButton_Click(Object^  sender, EventArgs^  e) {
 		pictureBox->Image = imgSrc;
 		pictureBox->Refresh();
 		src = BitmapToMat();
+		src_gray = src;
 		//imshow("Source image showing via OpenCv", src);
 		//namedWindow("Source image showing via OpenCv", WINDOW_NORMAL);
 		//cv::resizeWindow("Source image showing via OpenCv", 800, 600);
 		ROIButton->Enabled = true;
 	}
+//help function to rotate image in case which width is shorter then hight
 private: Bitmap^ rotateTextureGrid(Bitmap^ _currentPicture)
 	{
 		Bitmap^ ret = gcnew Bitmap(_currentPicture->Height, _currentPicture->Width);      //reminder we are flipping these in the target
@@ -435,7 +443,8 @@ private: Bitmap^ rotateTextureGrid(Bitmap^ _currentPicture)
 
 		return ret;
 	}
-	
+
+//Apply current state of image in form to mat --> src_gray
 private: System::Void Applybutton_Click(System::Object^  sender, System::EventArgs^  e) {
 	if (ROIdefine)
 	{
@@ -450,7 +459,10 @@ private: System::Void Applybutton_Click(System::Object^  sender, System::EventAr
 		System::IntPtr ptr(src_ROI.ptr());
 		pictureBox->Image = gcnew System::Drawing::Bitmap(src_ROI.cols, src_ROI.rows, src_ROI.step, System::Drawing::Imaging::PixelFormat::Format24bppRgb, ptr);
 		pictureBox->Refresh();
+		ThresholdComboBox->Enabled = true;
 		Applybutton->Enabled = false;
+		UndoButton->Enabled = false;
+
 	}
 	else if (ExortReady)
 	{
@@ -469,15 +481,24 @@ private: System::Void Applybutton_Click(System::Object^  sender, System::EventAr
 		imshow("d", src_elipse);
 		pictureBox->Refresh();
 		Applybutton->Enabled = false;
+		UndoButton->Enabled = false;
 	}
 	else
 	{
 		pictureBox->Refresh();
 		Applybutton->Enabled = false;
+		UndoButton->Enabled = false;
 	}
 	src_gray = BitmapToMat();
 }
+//Apply current src_gray to screen -->picturebox
+private: System::Void UndoButton_Click(System::Object^  sender, System::EventArgs^  e) {
+	ConvertMatToBitmap(src_gray);
+	UndoButton->Enabled = false;
+	Applybutton->Enabled = false;
+}
 
+//help functions to conver from image to mat and oppusite
 private: Mat BitmapToMat()
 	{
 		System::Drawing::Bitmap^ bitmap = (Bitmap^) pictureBox->Image;
@@ -503,6 +524,7 @@ private: Mat BitmapToMat()
 	}
 private: void ConvertMatToBitmap(Mat matToConvert)
 	{
+		pictureBox->Refresh();
 		System::Drawing::Graphics^ graphics = pictureBox->CreateGraphics();
 		System::IntPtr ptr(matToConvert.ptr());
 		if (matToConvert.channels() == 3)
@@ -525,22 +547,12 @@ private: void ConvertMatToBitmap(Mat matToConvert)
 	int V_MIN = 0;
 	int V_MAX = 256;*/
 
+//On ROI Button click a listner on picturebox is enaible --> user can click and drag to choose ROI and click apply for changes 
 private: Void ROIButton_Click(Object^  sender, EventArgs^  e) {
-		
 		//CruserpictureBox->Visible = true;
 		ROIdefine = true;
-
-		//delete myBrush;
-		//delete formGraphics;
-		// Set the Current cursor, move the cursor's Position,
-		// and set its clipping rectangle to the form.
-		//ConvertMatToBitmap(src);
-		//Rect2d r = selectROI(src);
-		//src_ROI = src(r);
-		//imshow("Source image showing via OpenCv", src_ROI);
-		//src_ROI.copyTo( src);
-		ThresholdComboBox->Enabled = true;
 	}
+//Picturebox listners for ROI and Export
 private: System::Void pictureBox_MouseDown(System::Object^  sender, System::Windows::Forms::MouseEventArgs^ e)
 {
 	if (ROIdefine)
@@ -580,10 +592,12 @@ private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Window
 		Applybutton->Enabled = true;
 	}
 }
-	
-private: Void ThresholdComboBox_SelectedIndexChanged(Object^  sender, EventArgs^  e) {
-		ThresholdTrackBar->Enabled = true;
-	}
+
+//on combobox select -> threshold scroll bar is enabled
+private: Void ThresholdComboBox_SelectedIndexChanged(Object^  sender, EventArgs^  e)
+{
+	ThresholdTrackBar->Enabled = true;
+}
 private: Void ThresholdTrackBar_Scroll(Object^  sender, EventArgs^  e) {
 		/* 0: Binary
 		1: Binary Inverted
@@ -595,157 +609,18 @@ private: Void ThresholdTrackBar_Scroll(Object^  sender, EventArgs^  e) {
 		threshold(src_gray, src_threshold, ThresholdTrackBar->Value, 255, ThresholdComboBox->SelectedIndex);
 		ConvertMatToBitmap(src_threshold);
 		Applybutton->Enabled = true;
+		UndoButton->Enabled = true;
+		ErosionComboBox->Enabled = true;
 	}
 
-private: Void BlurButton_Click(Object^  sender, EventArgs^  e) {
-		int DELAY_CAPTION = 1500;
-		int DELAY_BLUR = 100;
-		int MAX_KERNEL_LENGTH = 31;
-		src_blur = src_gray.clone();
-		/*	0 = Original
-		1 = Blur
-		2 = Gaussian Blur
-		3 = Median Blur
-		4 = Bilateral Filter*/
-		switch (BlurComboBox->SelectedIndex)
-		{
-		case(0):
-		{
-			src_blur = src_gray;
-			break;
-		}
-		case(1):
-		{
-			for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
-			{
-				blur(src_gray, src_blur, cv::Size(i, i), cv::Point(-1, -1));
-				if (display_dst(DELAY_BLUR) != 0)
-				{
-					break;
-				}
-			}
-		}
-		case(2):
-		{
-			for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
-			{
-				GaussianBlur(src_gray, src_blur, cv::Size(i, i), 0, 0);
-				if (display_dst(DELAY_BLUR) != 0)
-				{
-					break;
-				}
-			}
-			break;
-		}
-		case(3):
-		{
-			for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
-			{
-				medianBlur(src_gray, src_blur, i);
-				if (display_dst(DELAY_BLUR) != 0)
-				{
-					break;
-				}
-			}
-			break;
-		}
-		case(4):
-		{
-			for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
-			{
-				bilateralFilter(src_gray, src_blur, i, i * 2, i / 2);
-				if (display_dst(DELAY_BLUR) != 0)
-				{
-					break;
-				}
-			}
-			break;
-		}
-		default:
-		{
-			break;
-		}
-		//imshow("Source image showing via OpenCv", src_blur);
-		ConvertMatToBitmap(src_blur);
-		Applybutton->Enabled = true;
-		}
-	}
-private: Void BlurComboBox_SelectedIndexChanged(Object^  sender, EventArgs^  e) {
-		BlurButton->Enabled = true;
-	}
-private: int display_dst(int delay)
-	{
-		int c = waitKey(delay);
-		if (c >= 0) { return -1; }
-		return 0;
-	}
-
-private: Void EdgeComboBox_SelectedIndexChanged(Object^  sender, EventArgs^  e) {
-		/*	0 = Canny Edge Detector
-		1 = Sobel Derivatives
-		*/
-		switch (EdgeComboBox->SelectedIndex)
-		{
-			case(0):
-			{
-				EdgeTrresholdTrackBar->Enabled = true;
-				int edgeThresh = 1;
-				int ratio = 3;
-				int kernel_size = 3;
-
-				Canny(src_gray, src_detected_edges, EdgeTrresholdTrackBar->Value, EdgeTrresholdTrackBar->Value*ratio, kernel_size);
-
-				/// Using Canny's output as a mask, we display our result
-				break;
-			}
-			case(1):
-			{
-				EdgeTrresholdTrackBar->Enabled = false;
-				int scale = 1;
-				int delta = 0;
-				int ddepth = CV_16S;
-				Mat grad_x, grad_y;
-				Mat abs_grad_x, abs_grad_y;
-
-				/// Gradient X
-				//Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
-				Sobel(src_gray, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT);
-				convertScaleAbs(grad_x, abs_grad_x);
-
-				/// Gradient Y
-				//Scharr( src_gray, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
-				Sobel(src_gray, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT);
-				convertScaleAbs(grad_y, abs_grad_y);
-
-				/// Total Gradient (approximate)
-				addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, src_detected_edges);
-				break;
-			}
-		}
-		//imshow("Source image showing via OpenCv", src_detected_edges);
-		ConvertMatToBitmap(src_detected_edges);
-
-	}
-private: Void EdgeTrresholdTrackBar_Scroll(Object^  sender, EventArgs^  e) {
-		if (EdgeComboBox->SelectedIndex == 0)
-		{
-			int edgeThresh = 1;
-			int ratio = 3;
-			int kernel_size = 3;
-
-			Canny(src_gray, src_detected_edges, EdgeTrresholdTrackBar->Value, EdgeTrresholdTrackBar->Value*ratio, kernel_size);
-			//imshow("Source image showing via OpenCv", src_detected_edges);
-			ConvertMatToBitmap(src_detected_edges);
-
-			// Using Canny's output as a mask, we display our result
-		}
-		Applybutton->Enabled = true;
-	}
-
-
+//on combobox select -> erosion and dilitaion scroll bars are avilable by morph selected
 private: System::Void ErosionComboBox_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
 	ErosionTrackBar->Enabled = true;
 	DilationTrackBar->Enabled = true;
+	TransformationscomboBox->Enabled = true;
+	BolbMaxtrackBar->Enabled = true;
+	BolbMinTrackBar->Enabled = true;
+	ExportButton->Enabled = true;
 }
 private: System::Void ErosionTrackBar_Scroll(System::Object^  sender, System::EventArgs^  e) 
 {
@@ -767,46 +642,67 @@ private: System::Void DilationTrackBar_Scroll(System::Object^  sender, System::E
 	ConvertMatToBitmap(src_dilation);
 	Applybutton->Enabled = true;
 }
-private: System::Void pictureBox1_Click(System::Object^  sender, System::EventArgs^  e) {
-	if (ROIdefine)
-	{
-	}
+
+private: System::Void TransformationscomboBox_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
+	TransformationstrackBar->Enabled = true;
+
+}
+private: System::Void  TransformationstrackBar_Scroll(System::Object^  sender, System::EventArgs^  e) {
+	Mat element = getStructuringElement(ErosionComboBox->SelectedIndex, cv::Size(2 * TransformationstrackBar->Value + 1, 2 * TransformationstrackBar->Value + 1), cv::Point(TransformationstrackBar->Value, TransformationstrackBar->Value));
+	morphologyEx(src_gray, src_tranform, TransformationscomboBox->SelectedIndex + 2, element);
+	ConvertMatToBitmap(src_tranform);
+	Applybutton->Enabled = true;
 }
 
+
+private: System::Void BolbMinTrackBar_Scroll(System::Object^  sender, System::EventArgs^  e) {
+	BolbRemove();
+}
+private: System::Void BolbMaxtrackBar_Scroll(System::Object^  sender, System::EventArgs^  e) {
+	BolbRemove();
+}
+private: System::Void BolbRemove()
+{
+	RNG rng(12345);
+	vector < vector < cv::Point > > contours;
+	vector<Vec4i> hierarchy;
+	Mat edgesrc;
+	Canny(src_gray, edgesrc, BolbMinTrackBar->Value, BolbMaxtrackBar->Value, 3);
+	findContours(edgesrc, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
+
+	cv::Ptr<SimpleBlobDetector> bolbDetector = cv::SimpleBlobDetector::create();
+	std::vector<KeyPoint> keypoints;
+	bolbDetector->detect(edgesrc, keypoints);
+
+	src_contours = Mat::zeros(edgesrc.size(), CV_8UC3);
+
+	for (size_t i = 0; i < contours.size(); i++)
+	{
+		size_t count = contours[i].size();
+		if (count < 6)
+			continue;
+		Mat pointsf;
+		Mat(contours[i]).convertTo(pointsf, CV_32F);
+		RotatedRect box = fitEllipse(pointsf);
+		if (MAX(box.size.width, box.size.height) > MIN(box.size.width, box.size.height) * 30)
+			continue;
+		drawContours(src_contours, contours, (int)i, Scalar::all(255), 1, 8);
+	}
+
+	ConvertMatToBitmap(src_contours);
+	Applybutton->Enabled = true;
+	UndoButton->Enabled = true;
+}
 private: System::Void ExportButton_Click(System::Object^  sender, System::EventArgs^  e) {
 	RNG rng(12345);
 	vector < vector < cv::Point > > contours;
 
 	vector<Vec4i> hierarchy;
-	Canny(src_gray, src_threshold, EdgeTrresholdTrackBar->Value, EdgeTrresholdTrackBar->Value * 2, 3);
+	Canny(src_gray, src_threshold, ThresholdTrackBar->Value, ThresholdTrackBar->Value * 2, 3);
 
 	findContours(src_threshold, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, cv::Point(0, 0));
 
-	cv::SimpleBlobDetector::Params BolbParmas;
-	// Change thresholds
-	BolbParmas.minThreshold = BolbMinTrackBar->Value;
-	BolbParmas.maxThreshold = BolbMaxtrackBar->Value;
-	BolbParmas.filterByArea = true;
-	BolbParmas.minArea = BolbMaxAreatrackBar->Value;
-	cv::Ptr<SimpleBlobDetector> bolbDetector = cv::SimpleBlobDetector::create(BolbParmas);
-	std::vector<KeyPoint> keypoints;
-	bolbDetector->detect(src_threshold, keypoints);
-
-	// Draw detected blobs as red circles.
-	// DrawMatchesFlags::DRAW_RICH_KEYPOINTS flag ensures the size of the circle corresponds to the size of blob
-	Mat im_with_keypoints;
-	drawKeypoints(src_threshold, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-
-	// Show blobs
-	imshow("keypoints", im_with_keypoints);
-	/// Draw contours
-	src_contours = Mat::zeros(src_threshold.size(), CV_8UC3);
-	for (int i = 0; i < contours.size(); i++)
-	{
-		Scalar color = Scalar(rng.uniform(0, 255), rng.uniform(0, 255), rng.uniform(0, 255));
-		drawContours(src_contours, contours, i, color, 2, 8, hierarchy, 0, cv::Point());
-	}
-
+	std::sort(contours.begin(), contours.end(), compareContourAreas);
 	src_elipse = Mat::zeros(src_threshold.size(), CV_8UC3);
 
 	for (size_t i = 0; i < contours.size(); i++)
@@ -824,14 +720,16 @@ private: System::Void ExportButton_Click(System::Object^  sender, System::EventA
 		ellipse(src_elipse, box.center, box.size*0.5f, box.angle, 0, 360, Scalar(0, 255, 255), 1, LINE_AA);
 		Point2f vtx[4];
 		box.points(vtx);
+		//cross lines 
 		line(src_elipse, (vtx[0] + vtx[1])* 0.5  , (vtx[2] + vtx[3]) * 0.5, Scalar(0, 255, 0), 1, LINE_AA);
+		line(src_elipse, (vtx[0] + vtx[3])* 0.5, (vtx[1] + vtx[2]) * 0.5, Scalar(0, 255, 0), 1, LINE_AA);
+
 	}
 
 	ConvertMatToBitmap(src_elipse);
 	ExortReady = true;
 	/// Show in a window
 	// Setup SimpleBlobDetector parameters.
-
 }
 
 };

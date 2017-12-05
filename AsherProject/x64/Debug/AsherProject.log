@@ -1,17 +1,14 @@
 ﻿  MyForm.cpp
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(447): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(451): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(466): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(467): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(511): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(516): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(554): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(555): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(574): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(575): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(787): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(788): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-c:\users\bar\documents\visual studio 2017\projects\asherproject\asherproject\MyForm.h(790): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(456): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(460): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(478): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(479): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(533): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(538): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(566): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(567): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(586): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\bar\source\repos\asherproject2\asherproject\MyForm.h(587): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
 c:\opencv-3.3.0\build\include\opencv2\core\cvstd.hpp(575): warning C4793: 'cv::String::String': function compiled as native:
   	Found an intrinsic not supported in managed code
 c:\opencv-3.3.0\build\include\opencv2\core\cuda.inl.hpp(105): warning C4793: 'cv::cuda::GpuMat::GpuMat': function compiled as native:
@@ -36,4 +33,4 @@ c:\opencv-3.3.0\build\include\opencv2\core\ptr.inl.hpp(72): warning C4793: 'cv::
   	Found an intrinsic not supported in managed code
 c:\opencv-3.3.0\build\include\opencv2\core\mat.inl.hpp(701): warning C4793: 'cv::Mat::operator=': function compiled as native:
   	Found an intrinsic not supported in managed code
-  AsherProject.vcxproj -> C:\Users\bar\Documents\Visual Studio 2017\Projects\AsherProject\x64\Debug\AsherProject.exe
+  AsherProject.vcxproj -> C:\Users\bar\Source\Repos\AsherProject2\x64\Debug\AsherProject.exe
