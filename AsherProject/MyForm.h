@@ -594,13 +594,13 @@ private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Window
 }
 
 /** i have a bug in between the LoadImageButton_Click function to ThresholdTrackBar_Scroll function
-	// the program shuold convet the image to binary at that point and performe a thresholding by ThresholdComboBox opptions.
-	// in some cases it works fine.
-	// but sometimes images dont take effect by threshold effect at all.
-	// when it happenis, ApllyButton.Enable == false
-	// src_gray spose to by in grayscale but in format !? ToDo check at zaa mpager??S!#^
-	// when you load anther image it may be grathpgul and work this time, but in most cases shoutdown and start again will incarse your chancses.
-	// ROI functions dont tach when of the Mat objects so i think says safe for know.
+	// At this point, the program should convert the image to binary and execute a threshold according to the option selected in ThresholdComboBox.
+	// In some cases it works just fine.
+	// But sometimes images are not affected by the threshold effect at all.
+	// When this happens, ApllyButton.Enable == False
+	// src_gray should be greyscale but in a subtle format I have not checked? Todo ***** check it ***** yaa mpager S! # ^
+	// When you upload another image it can be of good use and work, but in most cases close and re-run will increase your chances of passing this step successfully.
+	// ROI functions do not touch Mat objects so I think Fasher say a safe record right now.
 	// 
 
 

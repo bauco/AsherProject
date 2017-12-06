@@ -33,5 +33,4 @@ c:\opencv-3.3.0\build\include\opencv2\core\ptr.inl.hpp(72): warning C4793: 'cv::
   	Found an intrinsic not supported in managed code
 c:\opencv-3.3.0\build\include\opencv2\core\mat.inl.hpp(701): warning C4793: 'cv::Mat::operator=': function compiled as native:
   	Found an intrinsic not supported in managed code
-  .NETFramework,Version=v4.6.1.AssemblyAttributes.cpp
   AsherProject.vcxproj -> C:\Users\bar\Source\Repos\AsherProject2\x64\Debug\AsherProject.exe
