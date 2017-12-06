@@ -593,6 +593,28 @@ private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Window
 	}
 }
 
+/** i have a bug in between the LoadImageButton_Click function to ThresholdTrackBar_Scroll function
+	// the program shuold convet the image to binary at that point and performe a thresholding by ThresholdComboBox opptions.
+	// in some cases it works fine.
+	// but sometimes images dont take effect by threshold effect at all.
+	// when it happenis, ApllyButton.Enable == false
+	// src_gray spose to by in grayscale but in format !? ToDo check at zaa mpager??S!#^
+	// when you load anther image it may be grathpgul and work this time, but in most cases shoutdown and start again will incarse your chancses.
+	// ROI functions dont tach when of the Mat objects so i think says safe for know.
+	// 
+
+
+	//TODO
+	// 1. find the bug and fix it
+	// 2. add morph calss info such as string ClassName,maybe some api like get/SetMorph -> contors, Draw and that shitey staff
+	// 3. algae inhert morpha and impliment virtual function from morph
+	// 4. but i should look for: (morph by --> contors) && Contors from imagesrc in: filterd_image object contors
+		  filterd_image should have allready or can by asked at that point the morph details he look for. or some other way to by able to perfome machine learning in the future
+
+
+
+**/
+
 //on combobox select -> threshold scroll bar is enabled
 private: Void ThresholdComboBox_SelectedIndexChanged(Object^  sender, EventArgs^  e)
 {
