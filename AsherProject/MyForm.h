@@ -6,11 +6,14 @@
 #include "opencv2/stitching/warpers.hpp"
 #include "opencv2/core/utility.hpp"
 #include "opencv2/features2d/features2d.hpp"
+extern "C"
+{
+	bool __cdecl compareContourAreas(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2) {
+		double i = fabs(contourArea(cv::Mat(contour1)));
+		double j = fabs(contourArea(cv::Mat(contour2)));
+		return (i < j);
+	}
 
-bool compareContourAreas(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2) {
-	double i = fabs(contourArea(cv::Mat(contour1)));
-	double j = fabs(contourArea(cv::Mat(contour2)));
-	return (i < j);
 }
 
 namespace AsherProject {
@@ -41,6 +44,7 @@ namespace AsherProject {
 			//
 		}
 	private: System::Windows::Forms::ComboBox^  ContursComboBox;
+	private: System::Windows::Forms::Button^  DrawLineButton;
 	public:
 
 	protected:
@@ -92,7 +96,7 @@ namespace AsherProject {
 	private: System::Windows::Forms::TrackBar^  BolbMaxAreatrackBar;
 */
 	//flags for postions in progress diffrent use for the same var?
-	private: bool ExortReady = false;
+	private: bool DrawLineDefine = false;
 	private: bool ROIdefine = false;
 
 	// rect to output  on screen -> user choicse: 1. he click the ROI Button and ROIdefine == true 
@@ -100,8 +104,8 @@ namespace AsherProject {
 												//3. whenuser click aplly button ROUrect location is helping to extract and create cv::Mat -> ROI
 	private: Rectangle ROIrect = Rectangle(0, 0, 0, 0);
 	//user line input helpers 
-	//private: PointF lineStart;
-	//private: PointF lineEnd;
+	private: PointF lineStart;
+	private: PointF lineEnd;
 
 	private:
 		/// <summary>
@@ -136,6 +140,7 @@ namespace AsherProject {
 			this->DilationTrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->ErosionTrackBar = (gcnew System::Windows::Forms::TrackBar());
 			this->TopPanel = (gcnew System::Windows::Forms::Panel());
+			this->DrawLineButton = (gcnew System::Windows::Forms::Button());
 			this->PictureBoxPanel->SuspendLayout();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox))->BeginInit();
 			this->ButtomMidlePanel->SuspendLayout();
@@ -213,6 +218,7 @@ namespace AsherProject {
 			// 
 			// LeftMidleFunctionsPanel
 			// 
+			this->LeftMidleFunctionsPanel->Controls->Add(this->DrawLineButton);
 			this->LeftMidleFunctionsPanel->Controls->Add(this->ContursComboBox);
 			this->LeftMidleFunctionsPanel->Controls->Add(this->ExportButton);
 			this->LeftMidleFunctionsPanel->Controls->Add(this->ErosionComboBox);
@@ -248,7 +254,7 @@ namespace AsherProject {
 			this->ExportButton->Name = L"ExportButton";
 			this->ExportButton->Size = System::Drawing::Size(118, 23);
 			this->ExportButton->TabIndex = 14;
-			this->ExportButton->Text = L"Export Contors";
+			this->ExportButton->Text = L"Find Contors";
 			this->ExportButton->UseVisualStyleBackColor = true;
 			this->ExportButton->Click += gcnew System::EventHandler(this, &MyForm::ExportButton_Click);
 			// 
@@ -360,6 +366,17 @@ namespace AsherProject {
 			this->TopPanel->Size = System::Drawing::Size(784, 24);
 			this->TopPanel->TabIndex = 4;
 			// 
+			// DrawLineButton
+			// 
+			this->DrawLineButton->Enabled = false;
+			this->DrawLineButton->Location = System::Drawing::Point(12, 341);
+			this->DrawLineButton->Name = L"DrawLineButton";
+			this->DrawLineButton->Size = System::Drawing::Size(118, 23);
+			this->DrawLineButton->TabIndex = 4;
+			this->DrawLineButton->Text = L"Draw Line";
+			this->DrawLineButton->UseVisualStyleBackColor = true;
+			this->DrawLineButton->Click += gcnew System::EventHandler(this, &MyForm::DrawLineButton_Click);
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -439,10 +456,9 @@ private: System::Void Applybutton_Click(System::Object^  sender, System::EventAr
 		UndoButton->Enabled = false;
 
 	}
-/*
-	else if (ExortReady)
+	else if (DrawLineDefine)
 	{
-		ExortReady = false;
+		DrawLineDefine = false;
 		
 		int thickness = 5;
 		int lineType = LINE_8;
@@ -459,7 +475,6 @@ private: System::Void Applybutton_Click(System::Object^  sender, System::EventAr
 		Applybutton->Enabled = false;
 		UndoButton->Enabled = false;
 	}
-*/
 	else
 	{
 		pictureBox->Refresh();
@@ -538,13 +553,11 @@ private: System::Void pictureBox_MouseDown(System::Object^  sender, System::Wind
 		ROIrect.X = e->X;
 		ROIrect.Y = e->Y;
 	}
-/*
-	else if (ExortReady)
+	else if (DrawLineDefine)
 	{
 		lineStart.X = e->X;
 		lineStart.Y = e->Y;
 	}
-*/
 }
 private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Windows::Forms::MouseEventArgs^ e)
 {
@@ -559,8 +572,7 @@ private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Window
 		formGraphics->DrawRectangle(myBrush, ROIrect);
 		Applybutton->Enabled = true;
 	}
-/*
-	else if (ExortReady)
+	else if (DrawLineDefine)
 	{
 		pictureBox->Refresh();
 		lineEnd.X = e->X;
@@ -571,10 +583,9 @@ private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Window
 		formGraphics->DrawLine(myBrush, lineStart, lineEnd);
 		Applybutton->Enabled = true;
 	}
-*/
 }
 
-/** i have a bug in between the LoadImageButton_Click function to ThresholdTrackBar_Scroll function
+/* i have a bug in between the LoadImageButton_Click function to ThresholdTrackBar_Scroll function
 	// At this point, the program should convert the image to binary and execute a threshold according to the option selected in ThresholdComboBox.
 	// In some cases it works just fine.
 	// But sometimes images are not affected by the threshold effect at all.
@@ -594,7 +605,7 @@ private: System::Void pictureBox_MouseUp(System::Object^  sender, System::Window
 
 
 
-**/
+*/
 
 //on combobox select -> threshold scroll bar is enabled
 private: Void ThresholdComboBox_SelectedIndexChanged(Object^  sender, EventArgs^  e)
@@ -740,10 +751,11 @@ private: System::Void ExportButton_Click(System::Object^  sender, System::EventA
 	}
 
 	ConvertMatToBitmap(src_elipse);
-	ExortReady = true;
+	DrawLineDefine = true;
 	/// Show in a window
 	// Setup SimpleBlobDetector parameters.
 	ContursComboBox->Enabled = true;
+	DrawLineButton->Enabled = true;
 }
 
 private: System::Void ContursComboBox_SelectedIndexChanged(System::Object^  sender, System::EventArgs^  e) {
@@ -781,6 +793,8 @@ private: System::Void ContursComboBox_SelectedIndexChanged(System::Object^  send
 	{
 		ExportButton_Click(sender,e);
 	}
+}
+private: System::Void DrawLineButton_Click(System::Object^  sender, System::EventArgs^  e) {
 }
 };
 }
